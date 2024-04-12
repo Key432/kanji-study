@@ -1,0 +1,18 @@
+
+# config
+.eslintrc.cjs
+prettier.config.cjs
+next.config.js
+tailwind.config.js
+tsconfig.json
+postcss.config.js
+
+# build dir
+build/
+bin/
+obj/
+out/
+.next/
+
+# generated schema
+*/**/supabase/schema.ts
