@@ -21,7 +21,7 @@ export function MenuBox({
 }: MenuBoxProps) {
   const Container = ({ children }: { children: ReactNode }) =>
     href && hasMounted ? (
-      <Link href={href} className="cursor-pointer">
+      <Link href={href} className={twMerge("cursor-pointer", className)}>
         {children}
       </Link>
     ) : (
@@ -33,8 +33,8 @@ export function MenuBox({
       <Card
         {...props}
         className={twMerge(
-          "col-span-3 lg:col-span-1 shadow-md active:translate-y-0.5 h-full",
-          className,
+          "shadow-md active:translate-y-0.5 h-full w-full",
+          !hasMounted && className,
         )}
       >
         {heading && (

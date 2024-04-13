@@ -4,7 +4,7 @@ import { ContentLayout } from "@/components/base/layout/ContentLayout";
 import { Heading } from "@/components/ui/Heading";
 import { MenuBox } from "@/components/ui/MenuCard";
 
-export const revalidate = 60 * 60 * 24;
+export const revalidate = /*60 * 60 * 24*/ 0;
 
 export async function YojijukugoMenu() {
   const { count } = await supabase
@@ -21,13 +21,26 @@ export async function YojijukugoMenu() {
             メニュー
           </Heading>
           <div className="grid grid-cols-3 gap-4">
-            <MenuBox heading="一覧／検索" href="/yojijukugo/list">
+            <MenuBox
+              heading="一覧／検索"
+              href="/yojijukugo/list"
+              className="col-span-3 md:col-span-1"
+            >
               <p>登録されている四字熟語の一覧を表示します。検索もできます。</p>
             </MenuBox>
-            <MenuBox heading="演習" href="/yojijukugo/exercise">
+            <MenuBox
+              heading="演習"
+              className="col-span-3 md:col-span-1"
+              href="/yojijukugo/exercise"
+            >
               <p>登録されている四字熟語で問題演習を行います。</p>
             </MenuBox>
-            <MenuBox heading="登録" href="/yojijukugo/edit" hasMounted>
+            <MenuBox
+              heading="登録"
+              className="col-span-3 md:col-span-1"
+              href="/yojijukugo/edit"
+              hasMounted
+            >
               <p>新しく四字熟語を登録します。</p>
             </MenuBox>
           </div>
