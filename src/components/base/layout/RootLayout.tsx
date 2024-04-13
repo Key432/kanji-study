@@ -3,9 +3,9 @@ import { Header } from "../header/Header";
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-full min-h-full flex flex-col">
+    <div className="h-full min-h-full">
       <Header />
-      <main className="h-full grow">{children}</main>
+      <main className="min-h-[calc(100%-6rem)]">{children}</main>
       <Footer />
     </div>
   );
