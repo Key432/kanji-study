@@ -25,6 +25,7 @@ export async function YojijukugoMenu() {
               heading="一覧／検索"
               href="/yojijukugo/list"
               className="col-span-3 md:col-span-1"
+              hasMounted
             >
               <p>登録されている四字熟語の一覧を表示します。検索もできます。</p>
             </MenuBox>

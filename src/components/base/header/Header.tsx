@@ -6,7 +6,7 @@ import { TitleLogo } from "../logo/TitleLogo";
 
 export function Header() {
   return (
-    <header className="w-full h-12 bg-primary-300 sticky top-0">
+    <header className="w-full h-12 bg-primary-300 sticky top-0 z-50">
       <div className="h-full container mx-auto flex justify-between items-center">
         <Link href="/" className="active:translate-y-0.5">
           <TitleLogo className="text-lg px-2 md:text-xl" />

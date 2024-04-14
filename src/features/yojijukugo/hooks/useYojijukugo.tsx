@@ -16,7 +16,7 @@ export interface YojijukugoRecord {
 
 export interface YojijukugoDetailRecord extends YojijukugoRecord {
   meaning: string;
-  reference: string;
+  reference: string | null;
   hasNO: boolean;
   hasPrimary: boolean;
 }
@@ -70,15 +70,19 @@ function constructYojijukugoInsertRequest(
     full_text_reading: rawFullTextReading,
     synonyms,
     antonyms,
+    reference: rawReference,
     ...remains
   } = data;
 
   const full_text_reading = removeSeparator(rawFullTextReading);
   const splitedYojijukugo = splitYojijukugo(full_text, rawFullTextReading);
 
+  const reference = rawReference || null;
+
   return {
     full_text,
     full_text_reading,
+    reference,
     relational_yojijukugo: [
       ...synonyms.map((synonym) => {
         const {
@@ -118,6 +122,20 @@ function constructYojijukugoInsertRequest(
   };
 }
 
+export type FilterParams = Partial<{
+  q: string;
+  grade_id: (keyof typeof gradeMapping)[];
+  excludeNO: boolean;
+  excludePrimary: boolean;
+  onlyNO: boolean;
+  onlyPrimary: boolean;
+}>;
+
+export type SelectRecordsReturn = {
+  data: (YojijukugoRecord & { yojijukugo_id: number })[];
+  count: number;
+};
+
 export function useYojijukugo() {
   const insertRecord = async (data: YojijukugoForm) => {
     const request = constructYojijukugoInsertRequest(data);
@@ -142,5 +160,55 @@ export function useYojijukugo() {
     if (relationlError) throw relationlError;
   };
 
-  return { insertRecord };
+  const selectRecords = async (
+    filterParams: FilterParams,
+  ): Promise<SelectRecordsReturn> => {
+    const query = supabase
+      .from("yojijukugo")
+      .select("yojijukugo_id,full_text,full_text_reading,grade_id", {
+        count: "exact",
+      });
+
+    const filteredByQ = filterParams?.q
+      ? query.like("full_text", `%${filterParams.q}%`)
+      : query;
+
+    const filteredByGradeID = filterParams?.grade_id
+      ? filteredByQ.in("grade_id", filterParams.grade_id)
+      : filteredByQ;
+
+    const filteredByExcludeNO = filterParams?.excludeNO
+      ? filteredByGradeID.eq("hasNO", false)
+      : filteredByGradeID;
+
+    const filteredByOnlyNO = filterParams?.onlyNO
+      ? filteredByExcludeNO.eq("hasNO", true)
+      : filteredByExcludeNO;
+
+    const filteredByExcludePrimary = filterParams?.excludePrimary
+      ? filteredByOnlyNO.eq("hasPrimary", false)
+      : filteredByOnlyNO;
+
+    const filteredByOnlyPrimary = filterParams?.onlyPrimary
+      ? filteredByExcludePrimary.eq("hasPrimary", true)
+      : filteredByExcludePrimary;
+
+    const { data: selected, count } =
+      await filteredByOnlyPrimary.order("full_text_reading");
+
+    return {
+      count: count || 0,
+      data:
+        selected?.map((item) => {
+          return {
+            yojijukugo_id: item.yojijukugo_id,
+            full_text: item.full_text,
+            full_text_reading: item.full_text_reading,
+            grade_id: item.grade_id as keyof typeof gradeMapping,
+          };
+        }) ?? [],
+    };
+  };
+
+  return { insertRecord, selectRecords };
 }

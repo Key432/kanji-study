@@ -5,7 +5,7 @@ export const roadmap: RoadmapStructure[] = [
     value: "四字熟語",
     content: [
       { value: "四字熟語の登録", hasDone: true },
-      { value: "四字熟語の一覧表示", hasDone: false },
+      { value: "四字熟語の一覧表示", hasDone: true },
       {
         value: "登録した四字熟語の演習",
         content: [
