@@ -17,8 +17,8 @@ export function YojijukugoEditor() {
 
   return (
     <ContentLayout title="四字熟語登録">
-      <Breadcrumb values={values} className="mb-2" />
-      <div className="px-4">
+      <Breadcrumb values={values} />
+      <div className="px-4 my-2">
         <YojijukugoForm onSubmit={insertRecord} />
       </div>
     </ContentLayout>

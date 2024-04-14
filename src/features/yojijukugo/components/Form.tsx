@@ -35,6 +35,7 @@ export function YojijukugoForm({ onSubmit }: YojijukugoFormProps) {
     watch,
     setValue,
     reset,
+    setFocus,
     formState: { errors },
   } = useForm<FormItem>({
     defaultValues: { synonyms: [], antonyms: [] },
@@ -54,6 +55,7 @@ export function YojijukugoForm({ onSubmit }: YojijukugoFormProps) {
     });
     setSynonyms([]);
     setAntonyms([]);
+    setFocus("full_text");
   };
 
   const fullText = watch("full_text");
