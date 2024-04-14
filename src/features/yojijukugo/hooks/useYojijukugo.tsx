@@ -44,6 +44,20 @@ export interface YojijukugoInsertRequest
     SplitYojijukugo & { type: "SYNONYM" | "ANTONYM" })[];
 }
 
+export interface YojijukugoResponse
+  extends YojijukugoDetailRecord,
+    SplitYojijukugo {
+  yojijukugo_id: number;
+  created_at: string;
+  relational_yojijukugo: (YojijukugoRecord &
+    SplitYojijukugo & {
+      type: "SYNONYM" | "ANTONYM";
+      relational_id: number;
+      yojijukugo_id: number;
+      created_at: string;
+    })[];
+}
+
 function splitYojijukugo(
   full_text: string,
   full_text_reading: string,
@@ -210,5 +224,35 @@ export function useYojijukugo() {
     };
   };
 
-  return { insertRecord, selectRecords };
+  const selectRecord = async (
+    yojijukugo_id: number,
+  ): Promise<YojijukugoResponse | null> => {
+    const { data } = await supabase
+      .from("yojijukugo")
+      .select("*, relational_yojijukugo(*)")
+      .eq("yojijukugo_id", yojijukugo_id)
+      .single();
+
+    if (data) {
+      const { grade_id, relational_yojijukugo, ...remain } = data;
+
+      return {
+        grade_id: grade_id as keyof typeof gradeMapping,
+        relational_yojijukugo:
+          relational_yojijukugo?.map((item) => {
+            const { type, grade_id, ...remain } = item;
+            return {
+              type: type as "SYNONYM" | "ANTONYM",
+              grade_id: grade_id as keyof typeof gradeMapping,
+              ...remain,
+            };
+          }) ?? [],
+        ...remain,
+      };
+    } else {
+      return null;
+    }
+  };
+
+  return { insertRecord, selectRecords, selectRecord };
 }
