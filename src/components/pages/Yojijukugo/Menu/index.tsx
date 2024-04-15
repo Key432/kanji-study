@@ -1,10 +1,16 @@
 import { supabase } from "@/libs/supabase/client";
 
 import { ContentLayout } from "@/components/base/layout/ContentLayout";
+import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
 import { Heading } from "@/components/ui/Heading";
 import { MenuBox } from "@/components/ui/MenuCard";
 
 export const revalidate = /*60 * 60 * 24*/ 0;
+
+const values: BreadcrumbProps["values"] = [
+  { text: "トップ", href: "/" },
+  { text: "四字熟語" },
+];
 
 export async function YojijukugoMenu() {
   const { count } = await supabase
@@ -15,6 +21,7 @@ export async function YojijukugoMenu() {
     .select("*", { count: "exact" });
   return (
     <ContentLayout title="四字熟語">
+      <Breadcrumb values={values} />
       <div className="px-4">
         <div className="py-2">
           <Heading as="h2" className="pb-2">
@@ -33,6 +40,7 @@ export async function YojijukugoMenu() {
               heading="演習"
               className="col-span-3 md:col-span-1"
               href="/yojijukugo/exercise"
+              hasMounted
             >
               <p>登録されている四字熟語で問題演習を行います。</p>
             </MenuBox>
