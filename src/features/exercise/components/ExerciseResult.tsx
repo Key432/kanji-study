@@ -1,5 +1,6 @@
 import { CircleIcon, Cross1Icon } from "@radix-ui/react-icons";
 import { Table } from "@radix-ui/themes";
+import Link from "next/link";
 
 import { AnswerResult } from "../hooks/useExercise";
 
@@ -59,7 +60,15 @@ export function ExerciseResult({ correctCount, results }: ExerciseResultProps) {
                   <Table.Cell className="text-secondary-default" align="center">
                     {result.isCorrect ? <CircleIcon /> : <Cross1Icon />}
                   </Table.Cell>
-                  <Table.Cell>{result.question}</Table.Cell>
+                  <Table.Cell>
+                    <Link
+                      target="_blank"
+                      href={`/yojijukugo/list/${result.yojijukugo_id}`}
+                      className="underline hover:text-secondary-default"
+                    >
+                      {result.question}
+                    </Link>
+                  </Table.Cell>
                   <Table.Cell>{result.answer}</Table.Cell>
                   <Table.Cell>{result.inputtedAnswer}</Table.Cell>
                 </Table.Row>

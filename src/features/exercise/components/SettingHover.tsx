@@ -29,15 +29,18 @@ export function SettingHover({ setting }: SettingHoverProps) {
               }, "")}
             </p>
           </div>
-          <div>
-            <p className="text-xs font-bold">除外</p>
-            <p className="text-sm">
-              {setting.excludeNO && "「之」を含む四字熟語"}
-            </p>
-            <p className="text-sm">
-              {setting.excludePrimary && "優先表記がある四字熟語"}
-            </p>
-          </div>
+
+          {(setting.excludeNO || setting.excludePrimary) && (
+            <div>
+              <p className="text-xs font-bold">除外</p>
+              <p className="text-sm">
+                {setting.excludeNO && "「之」を含む四字熟語"}
+              </p>
+              <p className="text-sm">
+                {setting.excludePrimary && "優先表記がある四字熟語"}
+              </p>
+            </div>
+          )}
         </div>
       </HoverCard.Content>
     </HoverCard.Root>

@@ -23,6 +23,7 @@ export type QuestionCount = {
   count: number;
 };
 export type AnswerResult = {
+  yojijukugo_id: number;
   question_count: number;
   question: string;
   answer: string;
@@ -72,10 +73,10 @@ export function useExercise(_type: UseExerciseType) {
 
         const questions = selected.map((row) => {
           return {
-            yojijukugo_id: row.yojijukugo_id!,
-            question: row.full_text!,
-            answer: row.full_text_reading!,
-            meaning: row.meaning!,
+            yojijukugo_id: row.yojijukugo_id as number,
+            question: row.full_text as string,
+            answer: row.full_text_reading as string,
+            meaning: row.meaning as string,
           };
         });
 
@@ -105,6 +106,7 @@ export function useExercise(_type: UseExerciseType) {
       const updatedResults: AnswerResult[] = [
         ...results,
         {
+          yojijukugo_id: question?.yojijukugo_id ?? -1,
           question_count: questionCount.nowAsking,
           question: question?.question ?? "",
           answer: question?.answer ?? "",
