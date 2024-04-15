@@ -38,10 +38,7 @@ export function MenuBox({
         )}
       >
         {heading && (
-          <Heading
-            as="h3"
-            className="font-normal flex justify-between items-end"
-          >
+          <Heading as="h3" className="flex justify-between items-end">
             {heading}
             {!hasMounted && (
               <span className="text-secondary-300 text-xs">未完成！</span>

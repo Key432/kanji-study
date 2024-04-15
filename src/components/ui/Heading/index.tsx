@@ -6,7 +6,7 @@ export function Heading({ children, ...props }: HeadingProps) {
   return (
     <Head
       {...remain}
-      className={twMerge("font-stick text-xl md:text-2xl", className)}
+      className={twMerge("font-klee font-bold text-xl md:text-2xl", className)}
     >
       {children}
     </Head>
