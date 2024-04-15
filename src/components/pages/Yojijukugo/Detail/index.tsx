@@ -120,19 +120,31 @@ export async function YojijukugoDetail({
             <div className="col-span-2">
               <h2 className="font-bold text-lg">使用漢字で他の熟語を検索</h2>
               <p className="ml-2">
-                <Link href={`/yojijukugo/list?q=${data.text_char_1}`}>
+                <Link
+                  href={`/yojijukugo/list?q=${data.text_char_1}`}
+                  className="underline hover:text-secondary-default"
+                >
                   {data.text_char_1}
                 </Link>
                 <span className="mx-4">/</span>
-                <Link href={`/yojijukugo/list?q=${data.text_char_2}`}>
+                <Link
+                  href={`/yojijukugo/list?q=${data.text_char_2}`}
+                  className="underline hover:text-secondary-default"
+                >
                   {data.text_char_2}
                 </Link>
                 <span className="mx-4">/</span>
-                <Link href={`/yojijukugo/list?q=${data.text_char_3}`}>
+                <Link
+                  href={`/yojijukugo/list?q=${data.text_char_3}`}
+                  className="underline hover:text-secondary-default"
+                >
                   {data.text_char_3}
                 </Link>
                 <span className="mx-4">/</span>
-                <Link href={`/yojijukugo/list?q=${data.text_char_4}`}>
+                <Link
+                  href={`/yojijukugo/list?q=${data.text_char_4}`}
+                  className="underline hover:text-secondary-default"
+                >
                   {data.text_char_4}
                 </Link>
               </p>
