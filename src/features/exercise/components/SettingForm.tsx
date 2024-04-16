@@ -149,9 +149,7 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
               );
             }}
           />
-          <span className="text-xs pl-4 sm:text-base">
-            「之」を含む熟語を除外
-          </span>
+          <span className="pl-4">「之」を含む熟語を除外</span>
         </label>
       </div>
       <div>
@@ -170,9 +168,7 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
               );
             }}
           />
-          <span className="text-xs pl-4 sm:text-base">
-            優先表記がある熟語を除外
-          </span>
+          <span className="pl-4">優先表記がある熟語を除外</span>
         </label>
       </div>
       <div className="text-center">
