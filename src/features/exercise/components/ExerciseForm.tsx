@@ -1,4 +1,4 @@
-import { Button, TextField } from "@radix-ui/themes";
+import { Button, Popover, TextField } from "@radix-ui/themes";
 import { useForm } from "react-hook-form";
 
 import { ExerciseQuestion } from "../hooks/useExercise";
@@ -27,8 +27,20 @@ export function ExerciseForm({
         <p className="text-5xl sm:text-6xl md:text-8xl font-klee mt-10">
           {question.question}
         </p>
+        <div className="flex mt-6 justify-center">
+          <Popover.Root>
+            <Popover.Trigger>
+              <p className="min-w-48 w-1/4 cursor-pointer bg-slate-300 rounded-full">
+                意味を表示
+              </p>
+            </Popover.Trigger>
+            <Popover.Content>
+              <p className="text-sm">{question.meaning}</p>
+            </Popover.Content>
+          </Popover.Root>
+        </div>
         <form
-          className="flex flex-col justify-center items-center mt-10 w-full"
+          className="flex flex-col justify-center items-center mt-4 w-full"
           onSubmit={(e) => void handleSubmit(onSubmit)(e)}
         >
           <p>よみをひらがなで入力</p>
