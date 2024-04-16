@@ -34,8 +34,11 @@ export function ExerciseForm({
                 意味を表示
               </p>
             </Popover.Trigger>
-            <Popover.Content>
-              <p className="text-sm">{question.meaning}</p>
+            <Popover.Content
+              maxWidth={{ sm: "500px", initial: "150px" }}
+              align="center"
+            >
+              <p className="text-sm max-w-5/6">{question.meaning}</p>
             </Popover.Content>
           </Popover.Root>
         </div>
