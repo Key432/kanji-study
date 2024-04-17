@@ -38,3 +38,5 @@ export const grades = [
     grade_text: "不明",
   },
 ];
+
+export type Grade = keyof typeof gradeMapping;

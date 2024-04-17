@@ -1,16 +1,26 @@
 "use client";
 
 import { Button } from "@radix-ui/themes";
+import { useEffect } from "react";
+
+import { supabase } from "@/libs/supabase/client";
 
 import { ContentLayout } from "@/components/base/layout/ContentLayout";
 import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
 import { Heading } from "@/components/ui/Heading";
 
-import { ExerciseForm } from "@/features/exercise/components/ExerciseForm";
-import { ExerciseResult } from "@/features/exercise/components/ExerciseResult";
-import { SettingForm } from "@/features/exercise/components/SettingForm";
-import { SettingHover } from "@/features/exercise/components/SettingHover";
-import { useExercise } from "@/features/exercise/hooks/useExercise";
+import { Grade } from "@/constant/grades";
+import { ConfigHover } from "@/features/exercise/components/SettingHover";
+import {
+  Answer,
+  Config,
+  Question,
+  useExercise,
+} from "@/features/exercise/hooks/useExercise";
+
+import { ConfigForm } from "./ConfigForm";
+import { ExerciseResult } from "./ExerciseResult";
+import { QuestionForm } from "./QuestionForm";
 
 const values: BreadcrumbProps["values"] = [
   { text: "トップ", href: "/" },
@@ -19,11 +29,99 @@ const values: BreadcrumbProps["values"] = [
   { text: "熟語→よみ" },
 ];
 
+export interface YojijukugoReadingQuestion extends Question {
+  yojijukugo_id: number;
+  question: string;
+}
+
+export interface YojijukugoReadingAnswer extends Answer {
+  yojijukugo_id: number;
+  answer: string;
+}
+
+export interface YojijukugoReadingConfig extends Config {
+  grades: Grade[];
+  excludeNO: boolean;
+  excludePrimary: boolean;
+}
+
+export type YojijukugoReadingOption = {
+  meaning: string;
+};
+
 export function YojijukugoExerciseReading() {
-  const { status, setExerciseSetting, askQuestion, showResult, reset } =
-    useExercise("YOJIJUKUGO");
-  const { onSubmit, setting } = setExerciseSetting();
-  const { questionCount, question, next, submitAnswer } = askQuestion();
+  const {
+    status,
+    config,
+    count,
+    question,
+    results,
+    configureExercise,
+    startExercise,
+    goNextQuestion,
+    submitAnswer,
+    reset,
+    resetStatus,
+  } = useExercise<
+    YojijukugoReadingQuestion,
+    YojijukugoReadingAnswer,
+    YojijukugoReadingOption,
+    YojijukugoReadingConfig
+  >();
+
+  useEffect(() => {
+    const fetchQuestion = async (config: YojijukugoReadingConfig) => {
+      const query = supabase.from("view_random_yojijukugo").select("*");
+
+      const filteredByGradeID = config.grades
+        ? query.in("grade_id", config.grades)
+        : query;
+
+      const filteredByExcludeNO = config.excludeNO
+        ? filteredByGradeID.eq("hasNO", false)
+        : filteredByGradeID;
+
+      const filteredByExcludePrimary = config.excludePrimary
+        ? filteredByExcludeNO.eq("hasPrimary", false)
+        : filteredByExcludeNO;
+
+      const { data } = await filteredByExcludePrimary.limit(config.count);
+      if (data) {
+        startExercise(
+          data.map((item) => {
+            // NOTE: supabaseのViewを使うとNullableになってします。
+            // TODO: supabaseのスキーマ変更で設定できるかも？
+            // https://github.com/orgs/supabase/discussions/13279
+            const { yojijukugo_id, full_text, full_text_reading, meaning } =
+              item;
+
+            const question: YojijukugoReadingQuestion = {
+              yojijukugo_id: yojijukugo_id!,
+              question: full_text!,
+            };
+            const answer: YojijukugoReadingAnswer = {
+              yojijukugo_id: yojijukugo_id!,
+              answer: full_text_reading!,
+            };
+            const option: YojijukugoReadingOption = {
+              meaning: meaning!,
+            };
+            return {
+              target_id: yojijukugo_id!,
+              question: question,
+              answer: answer,
+              confirm: (inputtedAnswer, answer) =>
+                inputtedAnswer === answer.answer,
+              option: option,
+            };
+          }),
+        );
+      }
+    };
+    if (status === "READY" && config) {
+      void fetchQuestion(config);
+    }
+  }, [config, startExercise, status]);
 
   return (
     <ContentLayout title="四字熟語演習・よみ">
@@ -31,21 +129,24 @@ export function YojijukugoExerciseReading() {
       <div className="mx-4 mt-2">
         {status === "READY" && (
           <div>
-            <Heading as="h2">演習設定</Heading>
-            <SettingForm onSubmit={onSubmit} className="mt-2" />
+            <Heading as="h2">出題設定</Heading>
+            <ConfigForm
+              configureExercise={configureExercise}
+              className="mt-4"
+            />
           </div>
         )}
-        {status === "PROGRESS" && (
+        {status === "PROGRESS" && question && (
           <div>
             <div className="flex justify-start items-end">
-              <Heading as="h2" className="pr-2">
-                {`第${questionCount?.nowAsking ?? "-"}問`}
+              <Heading>
+                <p className="pr-2">{`第${count}問`}</p>
               </Heading>
-              <SettingHover setting={setting} />
+              <ConfigHover config={config} />
             </div>
-            <ExerciseForm
+            <QuestionForm
               question={question}
-              next={next}
+              next={goNextQuestion}
               submitAnswer={submitAnswer}
             />
           </div>
@@ -53,19 +154,19 @@ export function YojijukugoExerciseReading() {
         {status === "DONE" && (
           <div>
             <div className="flex justify-start items-end">
-              <Heading as="h2" className="pr-2">
-                演習結果
+              <Heading>
+                <p className="pr-2">演習結果</p>
               </Heading>
-              <SettingHover setting={setting} />
+              <ConfigHover config={config} />
             </div>
-            <ExerciseResult {...showResult()} />
+            <ExerciseResult results={results} />
             <div className="my-4 text-center">
               <Button className="bg-primary-default mx-2" onClick={reset}>
                 設定からしなおす
               </Button>
               <Button
                 className="bg-secondary-default mx-2"
-                onClick={() => setting && void onSubmit(setting)}
+                onClick={resetStatus}
               >
                 同じ設定でもう一回
               </Button>

@@ -1,33 +1,32 @@
 import { Button, Checkbox, Select, Switch } from "@radix-ui/themes";
 import { HTMLAttributes } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
 
 import { supabase } from "@/libs/supabase/client";
 
-import { gradeMapping, grades } from "@/constant/grades";
+import { Grade, grades } from "@/constant/grades";
 
-import { ExerciseSetting } from "../hooks/useExercise";
+import { YojijukugoReadingConfig } from ".";
 
-export type SettingFormProps = {
-  onSubmit: (data: ExerciseSetting) => void | Promise<void>;
+export type FormProps = {
+  configureExercise: (config: YojijukugoReadingConfig) => void;
   className?: HTMLAttributes<HTMLFormElement>["className"];
 };
 
-export function SettingForm({ onSubmit, className }: SettingFormProps) {
+export function ConfigForm({ configureExercise, className }: FormProps) {
   const {
-    handleSubmit,
     control,
+    handleSubmit,
     formState: { errors },
-  } = useForm<ExerciseSetting>();
+  } = useForm<YojijukugoReadingConfig>();
 
-  const onSubmitMerge = async (data: ExerciseSetting) => {
+  const onSubmit = async (data: YojijukugoReadingConfig) => {
     const query = supabase
-      .from("yojijukugo")
-      .select("", { count: "exact", head: true });
+      .from("view_random_yojijukugo")
+      .select("*", { count: "exact" });
 
-    const filteredByGradeID = data.grade_id
-      ? query.in("grade_id", data.grade_id)
+    const filteredByGradeID = data.grades
+      ? query.in("grade_id", data.grades)
       : query;
 
     const filteredByExcludeNO = data.excludeNO
@@ -38,35 +37,35 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
       ? filteredByExcludeNO.eq("hasPrimary", false)
       : filteredByExcludeNO;
 
-    const { count } = await filteredByExcludePrimary;
+    const { count } = await filteredByExcludePrimary.limit(data.count);
 
     if (!count) {
       alert("演習対象の四字熟語がありませんでした");
       return;
     }
 
-    if (count < data.exerciseCount) {
+    if (count < data.count) {
       alert(
         "演習対象の四字熟語が設定出題数に足りませんでした。最大数を出題します",
       );
     }
 
-    void onSubmit(data);
+    configureExercise(data);
   };
 
   return (
     <form
-      onSubmit={(e) => void handleSubmit(onSubmitMerge)(e)}
-      className={twMerge("[&>div]:my-4", className)}
+      onSubmit={(e) => void handleSubmit(onSubmit)(e)}
+      className={className}
     >
-      <div>
+      <div className="my-2">
         <p className="inline mr-4">出題級</p>
         {grades.map((grade) => {
           return (
             <Controller
               key={grade.grade_id}
               control={control}
-              name="grade_id"
+              name="grades"
               defaultValue={[]}
               rules={{
                 validate: (values) => {
@@ -78,9 +77,7 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
                   <label key={grade.grade_id} className="mr-2">
                     <Checkbox
                       color="crimson"
-                      checked={value?.includes(
-                        grade.grade_id as keyof typeof gradeMapping,
-                      )}
+                      checked={value?.includes(grade.grade_id as Grade)}
                       onCheckedChange={(checked) => {
                         return checked
                           ? onChange([...value, grade.grade_id])
@@ -98,16 +95,16 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
             />
           );
         })}
-        {!!errors.grade_id && (
-          <p className="inline text-red-400">{errors.grade_id.message}</p>
+        {!!errors.grades && (
+          <p className="inline text-red-400">{errors.grades.message}</p>
         )}
       </div>
-      <div>
+      <div className="my-2">
         <label className="flex items-center">
           <p className="inline mr-4">出題数</p>
           <Controller
             control={control}
-            name="exerciseCount"
+            name="count"
             defaultValue={10}
             rules={{ required: "必須項目" }}
             render={({ field: { onChange, value } }) => {
@@ -133,7 +130,7 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
           />
         </label>
       </div>
-      <div>
+      <div className="my-2">
         <label>
           <Controller
             control={control}
@@ -171,7 +168,7 @@ export function SettingForm({ onSubmit, className }: SettingFormProps) {
           <span className="pl-4">優先表記がある熟語を除外</span>
         </label>
       </div>
-      <div className="text-center">
+      <div className="text-center mt-10">
         <Button
           color="crimson"
           className="cursor-pointer px-16 active:translate-y-0.5"

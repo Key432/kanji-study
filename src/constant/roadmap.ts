@@ -11,7 +11,7 @@ export const roadmap: RoadmapStructure[] = [
         content: [
           {
             value: "漢字→よみの問題",
-            hasDone: false,
+            hasDone: true,
           },
           {
             value: "よみ→漢字の問題",

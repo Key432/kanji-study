@@ -1,14 +1,15 @@
 import { HoverCard } from "@radix-ui/themes";
 
+import { YojijukugoReadingConfig } from "@/components/pages/Yojijukugo/Exercise/Reading";
+
 import { gradeMapping } from "@/constant/grades";
 
-import { ExerciseSetting } from "../hooks/useExercise";
-
-export type SettingHoverProps = {
-  setting?: ExerciseSetting;
+export type ConfigHoverProps = {
+  config?: YojijukugoReadingConfig;
 };
-export function SettingHover({ setting }: SettingHoverProps) {
-  return setting ? (
+
+export function ConfigHover({ config }: ConfigHoverProps) {
+  return config ? (
     <HoverCard.Root>
       <HoverCard.Trigger>
         <p className="text-sm bg-slate-300 px-2 rounded-full select-none">
@@ -19,10 +20,10 @@ export function SettingHover({ setting }: SettingHoverProps) {
         <div>
           <div>
             <p className="text-xs font-bold">出題数</p>
-            <p className="text-sm">{setting.exerciseCount}問</p>
+            <p className="text-sm">{config.count}問</p>
             <p className="text-xs font-bold">出題級</p>
             <p className="text-sm">
-              {setting.grade_id.reduce((acc, grade, index) => {
+              {config.grades.reduce((acc, grade, index) => {
                 return index === 0
                   ? gradeMapping[grade as keyof typeof gradeMapping]
                   : `${acc} / ${gradeMapping[grade as keyof typeof gradeMapping]}`;
@@ -30,14 +31,14 @@ export function SettingHover({ setting }: SettingHoverProps) {
             </p>
           </div>
 
-          {(setting.excludeNO || setting.excludePrimary) && (
+          {(config.excludeNO || config.excludePrimary) && (
             <div>
               <p className="text-xs font-bold">除外</p>
               <p className="text-sm">
-                {setting.excludeNO && "「之」を含む四字熟語"}
+                {config.excludeNO && "「之」を含む四字熟語"}
               </p>
               <p className="text-sm">
-                {setting.excludePrimary && "優先表記がある四字熟語"}
+                {config.excludePrimary && "優先表記がある四字熟語"}
               </p>
             </div>
           )}

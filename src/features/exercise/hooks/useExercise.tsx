@@ -1,139 +1,119 @@
 import { useState } from "react";
 
-import { supabase } from "@/libs/supabase/client";
-
-import { gradeMapping } from "@/constant/grades";
-
-export type UseExerciseType = "YOJIJUKUGO";
 export type Status = "READY" | "PROGRESS" | "DONE";
-export type ExerciseSetting = {
-  grade_id: (keyof typeof gradeMapping)[];
-  exerciseCount: number;
-  excludeNO: boolean;
-  excludePrimary: boolean;
-};
-export type ExerciseQuestion = {
-  yojijukugo_id: number;
+
+export interface Question {
   question: string;
-  answer: string;
-  meaning: string;
-};
-export type QuestionCount = {
-  nowAsking: number;
+}
+
+export interface Answer {
+  answer: string | number;
+}
+
+export interface Config {
   count: number;
+}
+
+export type Exercise<Q extends Question, A extends Answer, Option> = {
+  target_id: number;
+  question: Q;
+  answer: A;
+  confirm: (inputtedAnswer: string, answer: A) => boolean;
+  option: Option;
 };
-export type AnswerResult = {
-  yojijukugo_id: number;
-  question_count: number;
-  question: string;
-  answer: string;
+
+export type Result<Q extends Question, A extends Answer> = {
+  question_no: number;
+  question: Q;
+  answer: A;
   inputtedAnswer: string;
   isCorrect: boolean;
 };
 
-const initalQuestionCount = {
-  nowAsking: 0,
-  count: 0,
-};
-
-export function useExercise(_type: UseExerciseType) {
+export function useExercise<
+  Q extends Question,
+  A extends Answer,
+  Option,
+  C extends Config,
+>() {
   const [status, setStatus] = useState<Status>("READY");
-  const [setting, setSetting] = useState<ExerciseSetting>();
-  const [questions, setQuestions] = useState<ExerciseQuestion[]>([]);
-  const [question, setQuestion] = useState<ExerciseQuestion>();
-  const [questionCount, setQuestionCount] =
-    useState<QuestionCount>(initalQuestionCount);
-  const [results, setResults] = useState<AnswerResult[]>([]);
+  const [questions, setQuestions] = useState<Exercise<Q, A, Option>[]>([]);
+  const [question, setQuestion] = useState<Exercise<Q, A, Option>>();
+  const [config, setConfig] = useState<C>();
+  const [results, setResults] = useState<Result<Q, A>[]>([]);
+  const [count, setCount] = useState<number>(0);
 
-  const setExerciseSetting = () => {
-    return {
-      onSubmit: async (data: ExerciseSetting) => {
-        setSetting(data);
-        const query = supabase
-          .from("view_random_yojijukugo")
-          .select("yojijukugo_id,full_text,full_text_reading,meaning");
+  const configureExercise = (config: C) => {
+    setStatus("READY");
+    setQuestions([]);
+    setQuestion(undefined);
+    setResults([]);
+    setCount(0);
+    setConfig(config);
+  };
 
-        const filteredByGradeID = data.grade_id
-          ? query.in("grade_id", data.grade_id)
-          : query;
+  const startExercise = (questions: Exercise<Q, A, Option>[]) => {
+    if (questions.length === 0 && count === 0 && config) return;
+    setQuestions(questions);
+    setQuestion(questions[count]);
+    setCount((prev) => prev + 1);
+    setStatus("PROGRESS");
+  };
 
-        const filteredByExcludeNO = data.excludeNO
-          ? filteredByGradeID.eq("hasNO", false)
-          : filteredByGradeID;
+  const goNextQuestion = () => {
+    if (questions.length === count) {
+      setStatus("DONE");
+      return;
+    }
+    setQuestion(questions[count]);
+    setCount((prev) => prev + 1);
+  };
 
-        const filteredByExcludePrimary = data.excludePrimary
-          ? filteredByExcludeNO.eq("hasPrimary", false)
-          : filteredByExcludeNO;
-
-        const { data: selected } = await filteredByExcludePrimary.limit(
-          data.exerciseCount,
-        );
-
-        if (!selected) return;
-
-        const questions = selected.map((row) => {
-          return {
-            yojijukugo_id: row.yojijukugo_id as number,
-            question: row.full_text as string,
-            answer: row.full_text_reading as string,
-            meaning: row.meaning as string,
-          };
-        });
-
-        setQuestions(questions);
-        setQuestionCount({ nowAsking: 1, count: questions.length });
-        setQuestion(questions[0]);
-        setResults([]);
-        setStatus("PROGRESS");
+  const submitAnswer = (inputtedAnswer: string) => {
+    if (question === undefined) return;
+    const isCorrect = question.confirm(inputtedAnswer, question.answer);
+    const updatedResults: Result<Q, A>[] = [
+      ...results,
+      {
+        question_no: count,
+        question: question.question,
+        inputtedAnswer: inputtedAnswer,
+        answer: question.answer,
+        isCorrect: isCorrect,
       },
-      setting,
-    };
-  };
-
-  const askQuestion = () => {
-    const next = () => {
-      if (questionCount.count === 0) return;
-      const { nowAsking, count } = questionCount;
-      if (nowAsking === count) {
-        setStatus("DONE");
-        return;
-      }
-      setQuestion(questions[nowAsking]);
-      setQuestionCount({ nowAsking: nowAsking + 1, count: count });
-    };
-
-    const submitAnswer = (answer: string) => {
-      const updatedResults: AnswerResult[] = [
-        ...results,
-        {
-          yojijukugo_id: question?.yojijukugo_id ?? -1,
-          question_count: questionCount.nowAsking,
-          question: question?.question ?? "",
-          answer: question?.answer ?? "",
-          inputtedAnswer: answer,
-          isCorrect: question?.answer === answer,
-        },
-      ];
-      setResults(updatedResults);
-      return question?.answer === answer;
-    };
-    return { question, questions, questionCount, next, submitAnswer };
-  };
-
-  const showResult = () => {
-    const correctCount = results.filter((result) => result.isCorrect).length;
-    const incorrectCount = results.filter((result) => !result.isCorrect).length;
-
-    return { correctCount, incorrectCount, results };
+    ];
+    setResults(updatedResults);
   };
 
   const reset = () => {
-    setSetting(undefined);
+    setStatus("READY");
     setQuestions([]);
     setQuestion(undefined);
-    setQuestionCount(initalQuestionCount);
+    setResults([]);
+    setCount(0);
+    setConfig(undefined);
+  };
+
+  const resetStatus = () => {
+    setCount(0);
+    setQuestions([]);
+    setQuestion(undefined);
     setResults([]);
     setStatus("READY");
   };
-  return { status, setExerciseSetting, askQuestion, showResult, reset };
+
+  return {
+    status,
+    config,
+    question,
+    questions,
+    results,
+    count,
+    configureExercise,
+    startExercise,
+    goNextQuestion,
+    submitAnswer,
+    reset,
+    resetStatus,
+  };
 }

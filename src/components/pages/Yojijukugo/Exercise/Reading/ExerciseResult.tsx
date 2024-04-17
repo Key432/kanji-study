@@ -1,16 +1,16 @@
 import { CircleIcon, Cross1Icon } from "@radix-ui/react-icons";
-import { Table } from "@radix-ui/themes";
-import Link from "next/link";
+import { Link, Table } from "@radix-ui/themes";
 
-import { AnswerResult } from "../hooks/useExercise";
+import { Result } from "@/features/exercise/hooks/useExercise";
+
+import { YojijukugoReadingAnswer, YojijukugoReadingQuestion } from ".";
 
 export type ExerciseResultProps = {
-  correctCount: number;
-  incorrectCount: number;
-  results: AnswerResult[];
+  results: Result<YojijukugoReadingQuestion, YojijukugoReadingAnswer>[];
 };
 
-export function ExerciseResult({ correctCount, results }: ExerciseResultProps) {
+export function ExerciseResult({ results }: ExerciseResultProps) {
+  const correctCount = results.filter((result) => result.isCorrect).length;
   return (
     <div className="text-center">
       <div className="mt-4">
@@ -52,24 +52,24 @@ export function ExerciseResult({ correctCount, results }: ExerciseResultProps) {
           <Table.Body>
             {results.map((result) => {
               return (
-                <Table.Row key={result.question_count}>
+                <Table.Row key={result.question_no}>
                   <Table.Cell
                     align="center"
                     className="sm:text-base text-sm"
-                  >{`第${result.question_count}問`}</Table.Cell>
+                  >{`第${result.question_no}問`}</Table.Cell>
                   <Table.Cell className="text-secondary-default" align="center">
                     {result.isCorrect ? <CircleIcon /> : <Cross1Icon />}
                   </Table.Cell>
                   <Table.Cell>
                     <Link
                       target="_blank"
-                      href={`/yojijukugo/list/${result.yojijukugo_id}`}
-                      className="underline hover:text-secondary-default"
+                      href={`/yojijukugo/list/${result.question.yojijukugo_id}`}
+                      className="text-black underline hover:text-secondary-default"
                     >
-                      {result.question}
+                      {result.question.question}
                     </Link>
                   </Table.Cell>
-                  <Table.Cell>{result.answer}</Table.Cell>
+                  <Table.Cell>{result.answer.answer}</Table.Cell>
                   <Table.Cell>{result.inputtedAnswer}</Table.Cell>
                 </Table.Row>
               );
