@@ -59,13 +59,15 @@ export async function YojijukugoMenu() {
             統計
           </Heading>
           <div className="grid grid-cols-3 gap-4">
-            <MenuBox className="active:translate-y-0">
+            <MenuBox className="active:translate-y-0 sm:col-span-1 col-span-3">
               <p className="pr-10">登録数</p>
-              <p className="text-4xl font-stick">{count}件</p>
+              <p className="text-2xl sm:text-4xl font-stick">{count}件</p>
             </MenuBox>
-            <MenuBox className="active:translate-y-0">
+            <MenuBox className="active:translate-y-0 sm:col-span-1 col-span-3">
               <p className="pr-10">関連語数</p>
-              <p className="text-4xl font-stick">{relationalCount}件</p>
+              <p className="text-2xl sm:text-4xl font-stick">
+                {relationalCount}件
+              </p>
             </MenuBox>
           </div>
         </div>
