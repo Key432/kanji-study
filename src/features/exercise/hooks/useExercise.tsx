@@ -30,12 +30,38 @@ export type Result<Q extends Question, A extends Answer> = {
   isCorrect: boolean;
 };
 
+export type UseExerciseRetusn<
+  Q extends Question,
+  A extends Answer,
+  Option,
+  C extends Config,
+> = {
+  status: Status;
+  config: C | undefined;
+  question: Exercise<Q, A, Option> | undefined;
+  questions: Exercise<Q, A, Option>[];
+  results: Result<Q, A>[];
+  count: number;
+  configureExercise: (config: C, onlySetConfig?: boolean) => Promise<void>;
+  startExercise: (questions: Exercise<Q, A, Option>[]) => void;
+  goNextQuestion: () => void;
+  submitAnswer: (inputtedAnswer: string) => void;
+  reset: () => void;
+  restart: () => Promise<void>;
+};
+
 export function useExercise<
   Q extends Question,
   A extends Answer,
   Option,
   C extends Config,
->() {
+>({
+  fetchExerciseDispatch,
+}: {
+  fetchExerciseDispatch: (
+    config: C,
+  ) => Promise<Exercise<Q, A, Option>[] | null>;
+}): UseExerciseRetusn<Q, A, Option, C> {
   const [status, setStatus] = useState<Status>("READY");
   const [questions, setQuestions] = useState<Exercise<Q, A, Option>[]>([]);
   const [question, setQuestion] = useState<Exercise<Q, A, Option>>();
@@ -43,13 +69,21 @@ export function useExercise<
   const [results, setResults] = useState<Result<Q, A>[]>([]);
   const [count, setCount] = useState<number>(0);
 
-  const configureExercise = (config: C) => {
-    setStatus("READY");
+  const configureExercise = async (
+    config: C,
+    onlySetConfig: boolean = false,
+  ) => {
     setQuestions([]);
     setQuestion(undefined);
     setResults([]);
     setCount(0);
     setConfig(config);
+    if (onlySetConfig) {
+      const questions = await fetchExerciseDispatch(config);
+      if (questions) {
+        startExercise(questions);
+      }
+    }
   };
 
   const startExercise = (questions: Exercise<Q, A, Option>[]) => {
@@ -94,12 +128,18 @@ export function useExercise<
     setConfig(undefined);
   };
 
-  const resetStatus = () => {
-    setCount(0);
-    setQuestions([]);
-    setQuestion(undefined);
+  const restart = async () => {
+    if (config === undefined) {
+      reset();
+      return;
+    }
+    const questions = await fetchExerciseDispatch(config);
+    if (!questions) return;
     setResults([]);
-    setStatus("READY");
+    setQuestions(questions);
+    setQuestion(questions[0]);
+    setCount(1);
+    setStatus("PROGRESS");
   };
 
   return {
@@ -114,6 +154,6 @@ export function useExercise<
     goNextQuestion,
     submitAnswer,
     reset,
-    resetStatus,
+    restart,
   };
 }

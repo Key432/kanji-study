@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 
-import { gradeMapping, grades } from "@/constant/grades";
+import { Grade, gradeMapping, grades } from "@/constant/grades";
 
 import { validateGradeIds } from ".";
 
@@ -91,9 +91,7 @@ export function ListFilter({ params }: { params?: { [key: string]: string } }) {
                     <label key={grade.grade_id} className="mr-2">
                       <Checkbox
                         color="crimson"
-                        checked={value?.includes(
-                          grade.grade_id as keyof typeof gradeMapping,
-                        )}
+                        checked={value?.includes(grade.grade_id as Grade)}
                         onCheckedChange={(checked) => {
                           return checked
                             ? onChange([...value, grade.grade_id])

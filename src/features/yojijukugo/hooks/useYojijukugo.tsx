@@ -1,6 +1,8 @@
 import { supabase } from "@/libs/supabase/client";
 
-import { gradeMapping } from "@/constant/grades";
+import { choiceRandom } from "@/components/base/utils";
+
+import { Grade, gradeMapping } from "@/constant/grades";
 
 import {
   removeSeparator,
@@ -218,7 +220,7 @@ export function useYojijukugo() {
             yojijukugo_id: item.yojijukugo_id,
             full_text: item.full_text,
             full_text_reading: item.full_text_reading,
-            grade_id: item.grade_id as keyof typeof gradeMapping,
+            grade_id: item.grade_id as Grade,
           };
         }) ?? [],
     };
@@ -237,13 +239,13 @@ export function useYojijukugo() {
       const { grade_id, relational_yojijukugo, ...remain } = data;
 
       return {
-        grade_id: grade_id as keyof typeof gradeMapping,
+        grade_id: grade_id as Grade,
         relational_yojijukugo:
           relational_yojijukugo?.map((item) => {
             const { type, grade_id, ...remain } = item;
             return {
               type: type as "SYNONYM" | "ANTONYM",
-              grade_id: grade_id as keyof typeof gradeMapping,
+              grade_id: grade_id as Grade,
               ...remain,
             };
           }) ?? [],
@@ -254,5 +256,28 @@ export function useYojijukugo() {
     }
   };
 
-  return { insertRecord, selectRecords, selectRecord };
+  const selectRandomRecords = async (
+    filterParams: FilterParams,
+    limit: number,
+  ): Promise<(YojijukugoDetailRecord & { yojijukugo_id: number })[] | null> => {
+    const { data: selectedAll } = await selectRecords(filterParams);
+    const yojijukugoIDs = selectedAll.map((item) => item.yojijukugo_id);
+    const chooseYojijukugoIDs = choiceRandom(yojijukugoIDs, limit) as number[];
+    const { data } = await supabase
+      .from("yojijukugo")
+      .select("*")
+      .in("yojijukugo_id", chooseYojijukugoIDs);
+
+    if (!data) return null;
+
+    return data.map((item) => {
+      const { grade_id, ...remain } = item;
+      return {
+        grade_id: grade_id as Grade,
+        ...remain,
+      };
+    });
+  };
+
+  return { insertRecord, selectRecords, selectRecord, selectRandomRecords };
 }

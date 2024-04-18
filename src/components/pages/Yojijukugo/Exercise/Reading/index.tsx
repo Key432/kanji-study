@@ -1,9 +1,6 @@
 "use client";
 
 import { Button } from "@radix-ui/themes";
-import { useEffect } from "react";
-
-import { supabase } from "@/libs/supabase/client";
 
 import { ContentLayout } from "@/components/base/layout/ContentLayout";
 import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
@@ -14,9 +11,11 @@ import { ConfigHover } from "@/features/exercise/components/SettingHover";
 import {
   Answer,
   Config,
+  Exercise,
   Question,
   useExercise,
 } from "@/features/exercise/hooks/useExercise";
+import { useYojijukugo } from "@/features/yojijukugo/hooks/useYojijukugo";
 
 import { ConfigForm } from "./ConfigForm";
 import { ExerciseResult } from "./ExerciseResult";
@@ -50,6 +49,8 @@ export type YojijukugoReadingOption = {
 };
 
 export function YojijukugoExerciseReading() {
+  const { selectRandomRecords } = useYojijukugo();
+
   const {
     status,
     config,
@@ -57,71 +58,52 @@ export function YojijukugoExerciseReading() {
     question,
     results,
     configureExercise,
-    startExercise,
     goNextQuestion,
     submitAnswer,
     reset,
-    resetStatus,
+    restart,
   } = useExercise<
     YojijukugoReadingQuestion,
     YojijukugoReadingAnswer,
     YojijukugoReadingOption,
     YojijukugoReadingConfig
-  >();
+  >({
+    fetchExerciseDispatch: async (config) => {
+      const { grades, count, ...remain } = config;
+      const data = await selectRandomRecords(
+        { ...remain, grade_id: grades },
+        count,
+      );
+      if (!data) return null;
+      const fetchedExercise: Exercise<
+        YojijukugoReadingQuestion,
+        YojijukugoReadingAnswer,
+        YojijukugoReadingOption
+      >[] = data.map((item) => {
+        const { yojijukugo_id, full_text, full_text_reading, meaning } = item;
 
-  useEffect(() => {
-    const fetchQuestion = async (config: YojijukugoReadingConfig) => {
-      const query = supabase.from("view_random_yojijukugo").select("*");
-
-      const filteredByGradeID = config.grades
-        ? query.in("grade_id", config.grades)
-        : query;
-
-      const filteredByExcludeNO = config.excludeNO
-        ? filteredByGradeID.eq("hasNO", false)
-        : filteredByGradeID;
-
-      const filteredByExcludePrimary = config.excludePrimary
-        ? filteredByExcludeNO.eq("hasPrimary", false)
-        : filteredByExcludeNO;
-
-      const { data } = await filteredByExcludePrimary.limit(config.count);
-      if (data) {
-        startExercise(
-          data.map((item) => {
-            // NOTE: supabaseのViewを使うとNullableになってします。
-            // TODO: supabaseのスキーマ変更で設定できるかも？
-            // https://github.com/orgs/supabase/discussions/13279
-            const { yojijukugo_id, full_text, full_text_reading, meaning } =
-              item;
-
-            const question: YojijukugoReadingQuestion = {
-              yojijukugo_id: yojijukugo_id!,
-              question: full_text!,
-            };
-            const answer: YojijukugoReadingAnswer = {
-              yojijukugo_id: yojijukugo_id!,
-              answer: full_text_reading!,
-            };
-            const option: YojijukugoReadingOption = {
-              meaning: meaning!,
-            };
-            return {
-              target_id: yojijukugo_id!,
-              question: question,
-              answer: answer,
-              confirm: (inputtedAnswer, answer) =>
-                inputtedAnswer === answer.answer,
-              option: option,
-            };
-          }),
-        );
-      }
-    };
-    if (status === "READY" && config) {
-      void fetchQuestion(config);
-    }
-  }, [config, startExercise, status]);
+        const question: YojijukugoReadingQuestion = {
+          yojijukugo_id: yojijukugo_id,
+          question: full_text,
+        };
+        const answer: YojijukugoReadingAnswer = {
+          yojijukugo_id: yojijukugo_id,
+          answer: full_text_reading,
+        };
+        const option: YojijukugoReadingOption = {
+          meaning: meaning,
+        };
+        return {
+          target_id: yojijukugo_id,
+          question: question,
+          answer: answer,
+          confirm: (inputtedAnswer, answer) => inputtedAnswer === answer.answer,
+          option: option,
+        };
+      });
+      return fetchedExercise;
+    },
+  });
 
   return (
     <ContentLayout title="四字熟語演習・よみ">
@@ -161,12 +143,15 @@ export function YojijukugoExerciseReading() {
             </div>
             <ExerciseResult results={results} />
             <div className="my-4 text-center">
-              <Button className="bg-primary-default mx-2" onClick={reset}>
+              <Button
+                className="bg-primary-default mx-2 cursor-pointer active:translate-y-0.5"
+                onClick={reset}
+              >
                 設定からしなおす
               </Button>
               <Button
-                className="bg-secondary-default mx-2"
-                onClick={resetStatus}
+                className="bg-secondary-default mx-2 cursor-pointer active:translate-y-0.5"
+                onClick={() => void restart()}
               >
                 同じ設定でもう一回
               </Button>

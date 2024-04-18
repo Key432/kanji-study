@@ -5,11 +5,22 @@ import { Controller, useForm } from "react-hook-form";
 import { supabase } from "@/libs/supabase/client";
 
 import { Grade, grades } from "@/constant/grades";
+import { UseExerciseRetusn } from "@/features/exercise/hooks/useExercise";
 
-import { YojijukugoReadingConfig } from ".";
+import {
+  YojijukugoReadingAnswer,
+  YojijukugoReadingConfig,
+  YojijukugoReadingOption,
+  YojijukugoReadingQuestion,
+} from ".";
 
 export type FormProps = {
-  configureExercise: (config: YojijukugoReadingConfig) => void;
+  configureExercise: UseExerciseRetusn<
+    YojijukugoReadingQuestion,
+    YojijukugoReadingAnswer,
+    YojijukugoReadingOption,
+    YojijukugoReadingConfig
+  >["configureExercise"];
   className?: HTMLAttributes<HTMLFormElement>["className"];
 };
 
@@ -50,7 +61,7 @@ export function ConfigForm({ configureExercise, className }: FormProps) {
       );
     }
 
-    configureExercise(data);
+    void configureExercise(data, true);
   };
 
   return (

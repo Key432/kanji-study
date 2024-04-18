@@ -2,7 +2,7 @@ import { HoverCard } from "@radix-ui/themes";
 
 import { YojijukugoReadingConfig } from "@/components/pages/Yojijukugo/Exercise/Reading";
 
-import { gradeMapping } from "@/constant/grades";
+import { Grade, gradeMapping } from "@/constant/grades";
 
 export type ConfigHoverProps = {
   config?: YojijukugoReadingConfig;
@@ -25,8 +25,8 @@ export function ConfigHover({ config }: ConfigHoverProps) {
             <p className="text-sm">
               {config.grades.reduce((acc, grade, index) => {
                 return index === 0
-                  ? gradeMapping[grade as keyof typeof gradeMapping]
-                  : `${acc} / ${gradeMapping[grade as keyof typeof gradeMapping]}`;
+                  ? gradeMapping[grade as Grade]
+                  : `${acc} / ${gradeMapping[grade as Grade]}`;
               }, "")}
             </p>
           </div>
