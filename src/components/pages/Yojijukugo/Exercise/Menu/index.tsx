@@ -33,6 +33,7 @@ export function YojijukugoExerciseMenu() {
           heading="熟語→意味"
           href="/yojijukugo/exercise/meaning"
           className="col-span-2 md:col-span-1"
+          hasMounted
         >
           <p>四字熟語から意味を４択で答えます</p>
         </MenuBox>
