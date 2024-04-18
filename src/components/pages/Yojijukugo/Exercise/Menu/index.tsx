@@ -25,6 +25,7 @@ export function YojijukugoExerciseMenu() {
           heading="よみ→漢字"
           href="/yojijukugo/exercise/writing"
           className="col-span-2 md:col-span-1"
+          hasMounted
         >
           <p>読み仮名で出題します。紙に漢字を書けたかを記録します</p>
         </MenuBox>

@@ -18,7 +18,7 @@ export type Exercise<Q extends Question, A extends Answer, Option> = {
   target_id: number;
   question: Q;
   answer: A;
-  confirm: (inputtedAnswer: string, answer: A) => boolean;
+  confirm: (inputtedAnswer: string | number | boolean, answer: A) => boolean;
   option: Option;
 };
 
@@ -26,7 +26,7 @@ export type Result<Q extends Question, A extends Answer> = {
   question_no: number;
   question: Q;
   answer: A;
-  inputtedAnswer: string;
+  inputtedAnswer: string | number | boolean;
   isCorrect: boolean;
 };
 
@@ -45,7 +45,7 @@ export type UseExerciseRetusn<
   configureExercise: (config: C, onlySetConfig?: boolean) => Promise<void>;
   startExercise: (questions: Exercise<Q, A, Option>[]) => void;
   goNextQuestion: () => void;
-  submitAnswer: (inputtedAnswer: string) => void;
+  submitAnswer: (inputtedAnswer: string | number | boolean) => void;
   reset: () => void;
   restart: () => Promise<void>;
 };
@@ -103,7 +103,7 @@ export function useExercise<
     setCount((prev) => prev + 1);
   };
 
-  const submitAnswer = (inputtedAnswer: string) => {
+  const submitAnswer = (inputtedAnswer: string | number | boolean) => {
     if (question === undefined) return;
     const isCorrect = question.confirm(inputtedAnswer, question.answer);
     const updatedResults: Result<Q, A>[] = [

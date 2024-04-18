@@ -1,10 +1,9 @@
 "use client";
 
-import { Button } from "@radix-ui/themes";
+import { Button, Heading } from "@radix-ui/themes";
 
 import { ContentLayout } from "@/components/base/layout/ContentLayout";
 import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
-import { Heading } from "@/components/ui/Heading";
 
 import { Grade } from "@/constant/grades";
 import { ConfigHover } from "@/features/exercise/components/SettingHover";
@@ -21,41 +20,40 @@ import { ExerciseResult } from "./ExerciseResult";
 import { QuestionForm } from "./QuestionForm";
 import { ConfigForm } from "../ConfigForm";
 
-const values: BreadcrumbProps["values"] = [
-  { text: "トップ", href: "/" },
-  { text: "四字熟語", href: "/yojijukugo" },
-  { text: "演習メニュー", href: "/yojijukugo/exercise" },
-  { text: "熟語→よみ" },
-];
-
-export interface YojijukugoReadingQuestion extends Question {
+export interface YojijukugoWritingQuestion extends Question {
   yojijukugo_id: number;
   question: string;
 }
 
-export interface YojijukugoReadingAnswer extends Answer {
+export interface YojijukugoWritingAnswer extends Answer {
   yojijukugo_id: number;
   answer: string;
 }
 
-export interface YojijukugoReadingConfig extends Config {
+export interface YojijukugoWritingConfig extends Config {
   grades: Grade[];
   excludeNO: boolean;
   excludePrimary: boolean;
 }
 
-export type YojijukugoReadingOption = {
+export type YojijukugoWritingOption = {
   meaning: string;
 };
 
-export function YojijukugoExerciseReading() {
-  const { selectRandomRecords } = useYojijukugo();
+const values: BreadcrumbProps["values"] = [
+  { text: "トップ", href: "/" },
+  { text: "四字熟語", href: "/yojijukugo" },
+  { text: "演習メニュー", href: "/yojijukugo/exercise" },
+  { text: "よみ→熟語" },
+];
 
+export function YojijukugoExerciseWriting() {
+  const { selectRandomRecords } = useYojijukugo();
   const {
     status,
     config,
-    count,
     question,
+    count,
     results,
     configureExercise,
     goNextQuestion,
@@ -63,10 +61,10 @@ export function YojijukugoExerciseReading() {
     reset,
     restart,
   } = useExercise<
-    YojijukugoReadingQuestion,
-    YojijukugoReadingAnswer,
-    YojijukugoReadingOption,
-    YojijukugoReadingConfig
+    YojijukugoWritingQuestion,
+    YojijukugoWritingAnswer,
+    YojijukugoWritingOption,
+    YojijukugoWritingConfig
   >({
     fetchExerciseDispatch: async (config) => {
       const { grades, count, ...remain } = config;
@@ -75,38 +73,37 @@ export function YojijukugoExerciseReading() {
         count,
       );
       if (!data) return null;
-      const fetchedExercise: Exercise<
-        YojijukugoReadingQuestion,
-        YojijukugoReadingAnswer,
-        YojijukugoReadingOption
+      const questions: Exercise<
+        YojijukugoWritingQuestion,
+        YojijukugoWritingAnswer,
+        YojijukugoWritingOption
       >[] = data.map((item) => {
         const { yojijukugo_id, full_text, full_text_reading, meaning } = item;
-
-        const question: YojijukugoReadingQuestion = {
+        const question: YojijukugoWritingQuestion = {
           yojijukugo_id: yojijukugo_id,
-          question: full_text,
+          question: full_text_reading,
         };
-        const answer: YojijukugoReadingAnswer = {
+        const answer: YojijukugoWritingAnswer = {
           yojijukugo_id: yojijukugo_id,
-          answer: full_text_reading,
+          answer: full_text,
         };
-        const option: YojijukugoReadingOption = {
+        const option: YojijukugoWritingOption = {
           meaning: meaning,
         };
         return {
           target_id: yojijukugo_id,
-          question: question,
-          answer: answer,
-          confirm: (inputtedAnswer, answer) => inputtedAnswer === answer.answer,
-          option: option,
+          question,
+          answer,
+          option,
+          confirm: (inputtedAnswer) => inputtedAnswer as boolean,
         };
       });
-      return fetchedExercise;
+      return questions;
     },
   });
 
   return (
-    <ContentLayout title="四字熟語演習・よみ">
+    <ContentLayout title="四字熟語演習・筆記">
       <Breadcrumb values={values} />
       <div className="mx-4 mt-2">
         {status === "READY" && (
@@ -144,13 +141,13 @@ export function YojijukugoExerciseReading() {
             <ExerciseResult results={results} />
             <div className="my-4 text-center">
               <Button
-                className="bg-primary-default mx-2 cursor-pointer active:translate-y-0.5"
+                className="bg-primary-default m-2 cursor-pointer active:translate-y-0.5"
                 onClick={reset}
               >
                 設定からしなおす
               </Button>
               <Button
-                className="bg-secondary-default mx-2 cursor-pointer active:translate-y-0.5"
+                className="bg-secondary-default m-2 cursor-pointer active:translate-y-0.5"
                 onClick={() => void restart()}
               >
                 同じ設定でもう一回

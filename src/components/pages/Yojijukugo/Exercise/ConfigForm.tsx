@@ -12,7 +12,7 @@ import {
   YojijukugoReadingConfig,
   YojijukugoReadingOption,
   YojijukugoReadingQuestion,
-} from ".";
+} from "./Reading";
 
 export type FormProps = {
   configureExercise: UseExerciseRetusn<
