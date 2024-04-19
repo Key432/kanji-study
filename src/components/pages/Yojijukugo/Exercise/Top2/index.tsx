@@ -24,7 +24,7 @@ import { ConfigForm } from "../ConfigForm";
 const values: BreadcrumbProps["values"] = [
   { text: "メニュー", href: "/" },
   { text: "四字熟語", href: "/yojijukugo" },
-  { text: "四字熟語演習メニュー", href: "/yojijukugo/exercise" },
+  { text: "演習メニュー", href: "/yojijukugo/exercise" },
   { text: "上二文字" },
 ];
 

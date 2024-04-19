@@ -27,7 +27,7 @@ export const roadmap: RoadmapStructure[] = [
           },
           {
             value: "下二文字→上二文字の問題",
-            hasDone: false,
+            hasDone: true,
           },
         ],
       },
