@@ -49,6 +49,7 @@ export function YojijukugoExerciseMenu() {
           heading="下二文字→上二文字"
           href="/yojijukugo/exercise/top2"
           className="col-span-2 md:col-span-1"
+          hasMounted
         >
           <p>下二文字で出題します。上二文字が書けたかを記録します</p>
         </MenuBox>
