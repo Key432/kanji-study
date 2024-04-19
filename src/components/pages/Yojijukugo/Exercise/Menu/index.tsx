@@ -39,14 +39,15 @@ export function YojijukugoExerciseMenu() {
         </MenuBox>
         <MenuBox
           heading="上二文字→下二文字"
-          href="/yojijukugo/exercise/top2"
+          href="/yojijukugo/exercise/bottom2"
           className="col-span-2 md:col-span-1"
+          hasMounted
         >
           <p>上二文字で出題します。下二文字が書けたかを記録します</p>
         </MenuBox>
         <MenuBox
           heading="下二文字→上二文字"
-          href="/yojijukugo/exercise/bottom2"
+          href="/yojijukugo/exercise/top2"
           className="col-span-2 md:col-span-1"
         >
           <p>下二文字で出題します。上二文字が書けたかを記録します</p>

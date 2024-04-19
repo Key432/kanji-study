@@ -259,7 +259,7 @@ export function useYojijukugo() {
   const selectRandomRecords = async (
     filterParams: FilterParams,
     limit: number,
-  ): Promise<(YojijukugoDetailRecord & { yojijukugo_id: number })[] | null> => {
+  ): Promise<Omit<YojijukugoResponse, "relational_yojijukugo">[] | null> => {
     const { data: selectedAll } = await selectRecords(filterParams);
     const yojijukugoIDs = selectedAll.map((item) => item.yojijukugo_id);
     const chooseYojijukugoIDs = choiceRandom(yojijukugoIDs, limit) as number[];
