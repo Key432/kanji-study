@@ -11,8 +11,6 @@ const values: BreadcrumbProps["values"] = [
   { text: "語彙ノート" },
 ];
 
-export const revalidate = 0;
-
 export async function VocabularyNote() {
   const { data } = await supabase
     .from("vocabulary")

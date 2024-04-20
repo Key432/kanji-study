@@ -5,8 +5,6 @@ import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
 import { Heading } from "@/components/ui/Heading";
 import { MenuBox } from "@/components/ui/MenuCard";
 
-export const revalidate = /*60 * 60 * 24*/ 0;
-
 const values: BreadcrumbProps["values"] = [
   { text: "トップ", href: "/" },
   { text: "四字熟語" },

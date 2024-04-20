@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "語彙ノート",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function Page() {
   return <VocabularyNote />;
 }
