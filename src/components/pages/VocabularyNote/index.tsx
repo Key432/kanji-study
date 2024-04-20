@@ -1,3 +1,5 @@
+import { supabase } from "@/libs/supabase/client";
+
 import { ContentLayout } from "@/components/base/layout/ContentLayout";
 import { Breadcrumb, BreadcrumbProps } from "@/components/ui/Breadcrumb";
 
@@ -9,7 +11,14 @@ const values: BreadcrumbProps["values"] = [
   { text: "語彙ノート" },
 ];
 
-export function VocabularyNote() {
+export const revalidate = 0;
+
+export async function VocabularyNote() {
+  const { data } = await supabase
+    .from("vocabulary")
+    .select("*")
+    .order("created_at");
+
   return (
     <ContentLayout title={<Title />}>
       <Breadcrumb values={values} />
@@ -17,12 +26,12 @@ export function VocabularyNote() {
         <div className="h-24 flex justify-center items-center">
           <VocabularyEditor />
         </div>
-        <div className="flex justify-center flex-wrap gap-4">
-          {Array.from({ length: 100 }, (_, i) => {
-            return i;
-          }).map((i) => (
-            <Card key={i} />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data &&
+            data.map((item) => {
+              const { vocabulary_id } = item;
+              return <Card key={vocabulary_id as number} {...item} />;
+            })}
         </div>
       </div>
     </ContentLayout>

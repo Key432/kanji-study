@@ -38,7 +38,7 @@ export const roadmap: RoadmapStructure[] = [
     content: [
       {
         value: "初めて知った語彙を登録する単語帳",
-        hasDone: false,
+        hasDone: true,
       },
       {
         value: "LINE BOTなどを作り簡単に登録できるようにする",

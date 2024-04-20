@@ -1,16 +1,20 @@
 "use client";
 
 import { Button, Dialog, TextArea, TextField } from "@radix-ui/themes";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
+import { supabase } from "@/libs/supabase/client";
+
 export type VocabularyForm = {
-  vocabulary: string;
-  reading: string;
+  text: string;
+  text_reading: string;
+  note: string;
   reference: string;
-  memo: string;
 };
 
 export function VocabularyEditor() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -18,9 +22,23 @@ export function VocabularyEditor() {
     formState: { errors },
   } = useForm<VocabularyForm>();
 
-  const onSubmit = (data: VocabularyForm) => {
-    console.log(data);
+  const onSubmit = async (data: VocabularyForm) => {
+    const { text, text_reading, note, reference } = data;
+    const { error } = await supabase.from("vocabulary").insert({
+      text: text,
+      text_reading: text_reading || null,
+      note: note || null,
+      reference: reference || null,
+    });
+
+    if (error) {
+      alert("登録に失敗しました");
+      console.error(error);
+      return;
+    }
+
     reset();
+    router.refresh();
   };
 
   return (
@@ -44,14 +62,14 @@ export function VocabularyEditor() {
             <label>
               <div className="flex justify-between">
                 <p>語彙*</p>
-                {errors.vocabulary && (
-                  <p className="text-red-500">{errors.vocabulary.message}</p>
+                {errors.text && (
+                  <p className="text-red-500">{errors.text.message}</p>
                 )}
               </div>
               <TextField.Root
                 color="crimson"
                 autoComplete="off"
-                {...register("vocabulary", { required: "必須項目" })}
+                {...register("text", { required: "必須項目" })}
               />
             </label>
           </div>
@@ -61,7 +79,7 @@ export function VocabularyEditor() {
               <TextField.Root
                 color="crimson"
                 autoComplete="off"
-                {...register("reading")}
+                {...register("text_reading")}
               />
             </label>
           </div>
@@ -71,7 +89,7 @@ export function VocabularyEditor() {
               <TextArea
                 color="crimson"
                 autoComplete="off"
-                {...register("memo")}
+                {...register("note")}
               />
             </label>
           </div>
