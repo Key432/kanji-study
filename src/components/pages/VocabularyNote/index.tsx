@@ -30,7 +30,10 @@ export async function VocabularyNote() {
           {data &&
             data.map((item) => {
               const { vocabulary_id } = item;
-              return <Card key={vocabulary_id as number} {...item} />;
+              // NOTE: アサーションが効いているのにESLintエラーが出る
+              // `vocabulary_id as number`とするとビルド時に逆にno-unnecessary-type-assertionが出る
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              return <Card key={vocabulary_id} {...item} />;
             })}
         </div>
       </div>
