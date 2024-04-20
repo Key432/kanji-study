@@ -98,7 +98,7 @@ export function RelationalForm({ onSubmit }: RelationalFormProps) {
                 onValueChange={onChange}
                 value={value}
               >
-                <Select.Trigger className="w-full" />
+                <Select.Trigger className="w-full" color="crimson" />
                 <Select.Content color="crimson">
                   {grades?.map((grade, index) => {
                     return (

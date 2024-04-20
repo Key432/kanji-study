@@ -34,7 +34,16 @@ export const roadmap: RoadmapStructure[] = [
     ],
   },
   {
-    value: "語彙の集積: LINEなどと連携する",
-    hasDone: false,
+    value: "語彙ノート",
+    content: [
+      {
+        value: "初めて知った語彙を登録する単語帳",
+        hasDone: false,
+      },
+      {
+        value: "LINE BOTなどを作り簡単に登録できるようにする",
+        hasDone: false,
+      },
+    ],
   },
 ];
