@@ -11,8 +11,8 @@ export type CardProps = {
 
 export function Card({ text, text_reading, note, reference }: CardProps) {
   return (
-    <RadixCard className="shadow-sm">
-      <div className="flex justify-start items-end gap-x-2">
+    <RadixCard className="shadow-sm flex flex-col justify-between">
+      <div className="flex flex-wrap justify-start items-end gap-x-2">
         <Heading as="h3">{text}</Heading>
         {text_reading && <p className="text-sm">{text_reading}</p>}
       </div>

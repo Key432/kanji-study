@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${zenAntique.variable} ${kleeOne.variable} ${notoColorEmoji.variable} ${stick.variable}`}
       >
-        <Theme appearance="light" className="h-full">
+        <Theme appearance="light" className="h-full" accentColor="crimson">
           <Layout>{children}</Layout>
         </Theme>
       </body>
